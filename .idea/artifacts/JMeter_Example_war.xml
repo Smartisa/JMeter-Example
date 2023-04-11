@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="JMeter-Example:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>JMeter-Example</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="JMeter-Example-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="JMeter-Example:war exploded" />
+    </root>
+  </artifact>
+</component>
