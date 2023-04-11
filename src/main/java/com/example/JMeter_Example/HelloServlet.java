@@ -19,7 +19,7 @@ public class HelloServlet extends HttpServlet {
         String content = request.getParameter("inputValue");
         String message = "";
         try {
-            FileWriter fileWriter = new FileWriter(new File("D:\\IDEA\\WorkSpace\\JMeter-Example\\output.txt"), true);
+            FileWriter fileWriter = new FileWriter(new File(rootPath, fileName), true);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
             bufferedWriter.write(content);
             bufferedWriter.newLine();
