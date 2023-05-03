@@ -1,0 +1,9 @@
+CREATE DATABASE IF NOT EXISTS jmeter_Example;
+
+USE jmeter_Example;
+
+CREATE TABLE IF NOT EXISTS student (
+  Name VARCHAR(255),
+  Sex VARCHAR(255),
+  Age VARCHAR(255)
+);

@@ -9,7 +9,12 @@
 </h1>
 <br/>
 <form method="post" action="${pageContext.request.contextPath}/hello-servlet">
-    <input type="text" name="inputValue">
+    <label>
+        <input type="text" name="name" placeholder="请输入姓名">
+        <input type="text" name="sex" placeholder="请输入性别">
+        <input type="text" name="age" placeholder="请输入年龄">
+    </label>
+
     <button type="submit"> Submit</button>
 </form>
 </body>

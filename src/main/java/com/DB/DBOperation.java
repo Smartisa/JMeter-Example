@@ -5,7 +5,7 @@ public class DBOperation {
     private final Connection conn;
 
     public DBOperation(UserConfig userConfig) throws SQLException {
-        String url = String.format("jdbc:mysql://%s:3306/%s", userConfig.getHost(), userConfig.getDatabase());
+        String url = String.format("jdbc:mysql://%s:3306/%s?&useSSL=false&serverTimezone=UTC", userConfig.getHost(), userConfig.getDatabase());
         conn = DriverManager.getConnection(url, userConfig.getUserName(), userConfig.getPassword());
     }
 

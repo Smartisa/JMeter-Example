@@ -16,7 +16,7 @@ public class UserConfig {
         host = "localhost";
         userName = "root";
         password = "zb753951";
-        database = "nuget_dependences";
+        database = "jmeter_example";
     }
 
     public UserConfig(String _host, String _userName, String _password, String _database)
