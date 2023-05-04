@@ -7,6 +7,7 @@ import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 public class HelloServlet extends HttpServlet {
     UserConfig config = new UserConfig();
     DBOperation operation = new DBOperation(config);
-    List<Student> studentList = new ArrayList<Student>() {};
+    final List<Student> studentList = Collections.synchronizedList(new ArrayList<Student>());
 
     public HelloServlet() throws SQLException {
     }
@@ -34,19 +35,10 @@ public class HelloServlet extends HttpServlet {
         studentList.add(student);
 
         //TODO
-        if(studentList.size()>1000)
-        {
-            try {
-                operation.executeInsert(studentList);
-                message = "添加成功";
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-                message = "添加失败";
-            }
-
-            studentList = new ArrayList<Student>(){};
+        synchronized (studentList) {
+            studentList.add(student);
+            insertStudentsIfNeeded(false);
         }
-
 
         String url = "index.jsp";
         String script = "<script>alert('" + message + "');window.location.href='" + url + "';</script>";
@@ -54,6 +46,32 @@ public class HelloServlet extends HttpServlet {
         response.getWriter().write(script);
     }
 
+    private void insertStudentsIfNeeded(boolean forceInsert) {
+        synchronized (studentList) {
+            if (studentList.size() >= 100000 || (forceInsert && !studentList.isEmpty())) {
+                List<List<Student>> chunks = splitStudentList(studentList, 1000);
+                for (List<Student> chunk : chunks) {
+                    try {
+                        operation.executeInsert(chunk);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    private List<List<Student>> splitStudentList(List<Student> studentList, int chunkSize) {
+        List<List<Student>> listOfChunks = new ArrayList<>();
+        for (int i = 0; i < studentList.size(); i += chunkSize) {
+            List<Student> chunk = studentList.subList(i, Math.min(studentList.size(), i + chunkSize));
+            listOfChunks.add(chunk);
+        }
+        return listOfChunks;
+    }
+
     public void destroy() {
+        // 销毁时，运行10w以下的数据
+        insertStudentsIfNeeded(true);
     }
 }
