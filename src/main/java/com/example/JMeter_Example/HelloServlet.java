@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/hello-servlet")
 public class HelloServlet extends HttpServlet {
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+
         String message = "";
 
         String name = request.getParameter("name");
