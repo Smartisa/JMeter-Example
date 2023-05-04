@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +38,7 @@ public class HelloServlet extends HttpServlet {
         //TODO
         synchronized (studentList) {
             studentList.add(student);
-            insertStudentsIfNeeded(false);
+            message = insertStudentsIfNeeded(false);
         }
 
         String url = "index.jsp";
@@ -46,19 +47,30 @@ public class HelloServlet extends HttpServlet {
         response.getWriter().write(script);
     }
 
-    private void insertStudentsIfNeeded(boolean forceInsert) {
+    private String insertStudentsIfNeeded(boolean forceInsert) {
+        String message = "";
+
         synchronized (studentList) {
             if (studentList.size() >= 100000 || (forceInsert && !studentList.isEmpty())) {
-                List<List<Student>> chunks = splitStudentList(studentList, 1000);
-                for (List<Student> chunk : chunks) {
+                List<List<Student>> chunks = splitStudentList(studentList, 10000);
+
+                AtomicBoolean success = new AtomicBoolean(true);
+
+                chunks.parallelStream().forEach(chunk -> {
                     try {
                         operation.executeInsert(chunk);
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
+                        success.set(false);
                     }
-                }
+                });
+
+                studentList.clear();
+                message = success.get() ? "添加成功" : "添加失败";
             }
         }
+
+        return message;
     }
 
     private List<List<Student>> splitStudentList(List<Student> studentList, int chunkSize) {
