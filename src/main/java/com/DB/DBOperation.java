@@ -1,5 +1,6 @@
 package com.DB;
 import java.sql.*;
+import java.util.List;
 
 public class DBOperation {
     private final Connection conn;
@@ -19,14 +20,18 @@ public class DBOperation {
         }
     }
 
-    public void executeInsert(String name, String sex, String age) throws SQLException {
+    public void executeInsert(List<Student> studentList) throws SQLException {
         String sql = "INSERT INTO student (Name, Sex, Age) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, name);
-            stmt.setString(2, sex);
-            stmt.setString(3, age);
-            int rowsAffected = stmt.executeUpdate();
-            System.out.println("Rows affected: " + rowsAffected);
+            for(Student student : studentList)
+            {
+                stmt.setString(1, student.getName());
+                stmt.setString(2, student.getSex());
+                stmt.setString(3, student.getAge());
+                stmt.addBatch();
+            }
+
+            stmt.executeBatch();
         }
     }
 }
